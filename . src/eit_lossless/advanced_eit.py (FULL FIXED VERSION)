@@ -1,0 +1,38 @@
+. src/eit_lossless/advanced_eit.py (FULL FIXED VERSION)
+Pythonimport torch
+import torch.nn as nn
+from typing import Tuple
+
+class AdvancedEITLossless(nn.Module):
+    def __init__(self, d_model: int = 4096, freeze_ratio: float = 0.95, seed: int = 42):
+        super().__init__()
+        assert 0.0 <= freeze_ratio < 1.0
+        self.d_model = d_model
+        self.freeze_ratio = freeze_ratio
+        self.active_dim = max(1, int(d_model * (1 - freeze_ratio)))
+
+        torch.manual_seed(seed)
+        active_idx = torch.randperm(d_model)[:self.active_dim]
+        mask = torch.zeros(d_model, dtype=torch.bool)
+        mask[active_idx] = True
+        self.register_buffer("mask", mask)
+
+    def freeze(self, embeddings: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        Returns:
+            frozen_active: only active dims (95% zeroed)
+            mask: binary mask
+            deltas: exact values of frozen dims (for perfect restore)
+        """
+        frozen = embeddings.clone()
+        deltas = embeddings[:, :, ~self.mask]          # store frozen part
+        frozen[:, :, ~self.mask] = 0.0                 # zero it out
+        return frozen, self.mask, deltas
+
+    def restore(self, frozen: torch.Tensor, mask: torch.Tensor, deltas: torch.Tensor) -> torch.Tensor:
+        restored = frozen.clone()
+        restored[:, :, ~mask] = deltas                 # put exact values back
+        return restored
+
+    def forward(self, x):
+        return self.freeze(x)  # for easy hook usage
