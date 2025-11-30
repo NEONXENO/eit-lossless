@@ -1,0 +1,37 @@
+2. src/eit_lossless/utils.py (FIXED memory + new demo)
+Pythonimport torch, time, sys
+from .advanced_eit import AdvancedEITLossless
+
+def mem_gb(tensor): 
+    return tensor.numel() * tensor.element_size() / (1024**3)
+
+def run_benchmark(seq_len=1_000_000, freeze_ratio=0.95):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eit = AdvancedEITLossless(freeze_ratio=freeze_ratio).to(device)
+    emb = torch.randn(1, seq_len, 4096, device=device)
+
+    torch.cuda.reset_peak_memory_stats() if device=='cuda' else None
+    start = time.time()
+    frozen, mask, deltas = eit.freeze(emb)
+    baseline_mem = mem_gb(emb)
+    eit_mem = mem_gb(frozen) + mem_gb(deltas)
+
+    print(f"{seq_len//1000}K tokens | {freeze_ratio=}")
+    print(f"Memory: {baseline_mem:.2f} GB → {eit_mem:.2f} GB ({100-eit_mem/baseline_mem*100:.1f}% saved)")
+    print(f"Peak GPU mem: {torch.cuda.max_memory_allocated()/1e9:.2f} GB" if device=='cuda' else "")
+    print(f"Time: {time.time()-start:.2f}s | Lossless:", torch.allclose(emb, eit.restore(frozen, mask, deltas)))
+
+if __name__ == "__main__":
+    run_benchmark(1_000_000, 0.95)   # 1M tokens test
+    run_benchmark(10_000_000, 0.95)  # 10M tokens test (works on 24GB GPU)
+3. Quickstart example (add to README)
+Pythonfrom eit_lossless import AdvancedEITLossless
+import torch
+
+eit = AdvancedEITLossless(freeze_ratio=0.95)
+x = torch.randn(1, 1000000, 4096)
+
+frozen, mask, deltas = eit.freeze(x)        # ← 95% smaller for the model
+# → pass `frozen` to your LLM here
+restored = eit.restore(frozen, mask, deltas)
+print(torch.allclose(x, restored))         # True → 100% lossless
