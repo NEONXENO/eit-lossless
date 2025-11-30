@@ -50,5 +50,5 @@ python -m eit_lossless.thinking_mode
 ```
 
 ## 🌟 Created By
-NEO-SO + Grok AI (xAI)  
+MAIN NEO-SO And Assintant Grok AI (xAI) CHATGPT (OPEN-AI)
 Tested: PyTorch 2.4.1 | CUDA 12.4 | November 2025
