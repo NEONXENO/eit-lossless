@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eit-lossless"
+version = "1.0.0"
+description = "Embedding Inactivation Technique - 10x faster infinite context for LLMs"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "NEO-SO + Grok AI (xAI)", email = "neo@example.com"}
+]
+keywords = ["transformers", "embeddings", "lossless", "infinite-context", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "numpy",
+    "matplotlib",
+]
+
+[project.urls]
+Homepage = "https://github.com/NEONXENO/eit-lossless"
+Documentation = "https://github.com/NEONXENO/eit-lossless#readme"
+Repository = "https://github.com/NEONXENO/eit-lossless.git"
+Issues = "https://github.com/NEONXENO/eit-lossless/issues"
