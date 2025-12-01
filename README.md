@@ -1,6 +1,5 @@
 # 🚀 EIT Lossless - 10x Faster Infinite Context for LLMs
 
-[![PyPI](https://img.shields.io/pypi/v/eit-lossless)](https://pypi.org/project/eit-lossless/)
 [![Stars](https://img.shields.io/github/stars/NEONXENO/eit-lossless)](https://github.com/NEONXENO/eit-lossless)
 [![License](https://img.shields.io/github/license/NEONXENO/eit-lossless)](LICENSE)
 [![Tests](https://img.shields.io/github/workflow/status/NEONXENO/eit-lossless/CI)](https://github.com/NEONXENO/eit-lossless/actions)
