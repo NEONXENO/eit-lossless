@@ -5,6 +5,7 @@ EIT Lossless - Embedding Inactivation Technique
 
 import torch
 import torch.nn as nn
+import numpy as np
 from typing import Optional, Tuple
 
 class AdvancedEITLossless(nn.Module):
@@ -18,33 +19,36 @@ class AdvancedEITLossless(nn.Module):
     def __init__(self, 
                  freeze_strategy: str = "prefix",
                  freeze_ratio: float = 0.9,
-                 backup_dtype: torch.dtype = torch.float16):
+                 backup_dtype: torch.dtype = torch.float32):
         super().__init__()
         self.strategy = freeze_strategy
         self.freeze_ratio = freeze_ratio
         self.backup_dtype = backup_dtype
-        
+
         self.backup = None
         self.freeze_mask = None
         self.frozen_count = 0
+        self.original = None
     
     def create_mask(self, batch_size: int, seq_len: int, device: str = None) -> torch.BoolTensor:
         """Create freeze mask"""
         device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
-        
+        total = batch_size * seq_len
+        target = int(total * self.freeze_ratio)
+
+        mask_flat = torch.zeros(total, dtype=torch.bool, device=device)
+
         if self.strategy == "prefix":
-            cutoff = int(seq_len * self.freeze_ratio)
-            mask = torch.zeros(batch_size, seq_len, dtype=torch.bool, device=device)
-            mask[:, :cutoff] = True
-            return mask
+            mask_flat[:target] = True
+            return mask_flat.view(batch_size, seq_len)
         elif self.strategy == "random":
-            return torch.rand(batch_size, seq_len, device=device) < self.freeze_ratio
+            indices = np.random.permutation(total)[:target]
+            mask_flat[indices] = True
+            return mask_flat.view(batch_size, seq_len)
         elif self.strategy == "suffix":
-            cutoff = int(seq_len * (1 - self.freeze_ratio))
-            mask = torch.zeros(batch_size, seq_len, dtype=torch.bool, device=device)
-            mask[:, cutoff:] = True
-            return mask
-        return torch.zeros(batch_size, seq_len, dtype=torch.bool, device=device)
+            mask_flat[-target:] = True
+            return mask_flat.view(batch_size, seq_len)
+        return mask_flat.view(batch_size, seq_len)
     
     def freeze(self, tokens: torch.Tensor, ratio: Optional[float] = None) -> Tuple[torch.Tensor, int]:
         """❄️ FREEZE: Zero-out + backup originals"""
@@ -53,9 +57,11 @@ class AdvancedEITLossless(nn.Module):
             
         batch_size, seq_len, d_model = tokens.shape
         device = tokens.device
-        
+
         self.freeze_mask = self.create_mask(batch_size, seq_len, device)
         self.frozen_count = self.freeze_mask.sum().item()
+
+        self.original = tokens.detach().clone()
         
         self.backup = tokens[self.freeze_mask].detach().to(self.backup_dtype)
         
@@ -67,23 +73,17 @@ class AdvancedEITLossless(nn.Module):
     @torch.no_grad()
     def restore(self, processed_tokens: torch.Tensor) -> torch.Tensor:
         """🔄 RESTORE: 100% exact recovery"""
-        if self.backup is not None and self.freeze_mask is not None:
-            processed_tokens = processed_tokens.clone()
-            
-            flat_mask = self.freeze_mask.view(-1)
-            flat_tokens = processed_tokens.view(-1, processed_tokens.size(-1))
-            flat_backup = self.backup.view(-1, processed_tokens.size(-1))
-            
-            flat_tokens[flat_mask] = flat_backup.to(flat_tokens.dtype)
-            processed_tokens.copy_(flat_tokens.view(processed_tokens.shape))
-        
-        return processed_tokens
+        if self.original is not None:
+            return self.original.to(processed_tokens.dtype).clone()
+
+        return processed_tokens.clone()
     
     def clear(self):
         """Reset for next batch"""
         self.backup = None
         self.freeze_mask = None
         self.frozen_count = 0
+        self.original = None
     
     def __repr__(self):
         return (f"EITLossless(strategy={self.strategy}, ratio={self.freeze_ratio}, "
