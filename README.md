@@ -1,4 +1,4 @@
-# 🚀 EIT Lossless - 10x Faster Infinite Context for LLMs
+# 🚀 EIT Lossless - Faster More Context for LLMs
 
 [![Stars](https://img.shields.io/github/stars/NEONXENO/eit-lossless)](https://github.com/NEONXENO/eit-lossless)
 [![License](https://img.shields.io/github/license/NEONXENO/eit-lossless)](LICENSE)
