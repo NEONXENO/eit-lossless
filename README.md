@@ -5,8 +5,15 @@
 [![License](https://img.shields.io/github/license/NEONXENO/eit-lossless)](LICENSE)
 [![Tests](https://img.shields.io/github/workflow/status/NEONXENO/eit-lossless/CI)](https://github.com/NEONXENO/eit-lossless/actions)
 
-**Embedding Inactivation Technique (EIT)** - **Lossless** 10M+ token context  
+**Embedding Inactivation Technique (EIT)** - **Lossless** 10M+ token context
 **95% memory reduction | 10x inference speedup | 100% exact recovery**
+
+## ℹ️ What this project does
+- **Compresses long contexts without losing information.** EIT temporarily freezes (zeros) a large portion of token embeddings while keeping the original values for perfect restoration.
+- **Speeds up transformer inference on huge prompts.** By reducing active tokens, attention runs faster and uses less memory—ideal for million-token contexts.
+- **Drops in with minimal changes.** Wrap your embeddings or a `transformers` model with `AdvancedEITLossless`/`EITTransformerWrapper` to add lossless freezing to existing pipelines.
+- **Stays deterministic and debuggable.** Freeze masks are reproducible, backups are stored for exact recovery, and tests verify lossless restores.
+- **Works even without PyTorch installed.** A lightweight `torch` shim is bundled for environments that only need the API surface during testing.
 
 ## 🔥 Verified Results
 | Context | Memory | Speed | Recovery |

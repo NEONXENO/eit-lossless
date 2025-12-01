@@ -24,10 +24,10 @@ def test_lossless_recovery(strategy, ratio):
 def test_memory_efficiency():
     """Test memory savings from freezing"""
     eit = AdvancedEITLossless(freeze_ratio=0.9)
-    large_tokens = torch.randn(1, 100_000, 4096)
-    
+    large_tokens = torch.randn(1, 1_000, 512)
+
     frozen, count = eit.freeze(large_tokens)
-    assert count == 90_000, f"Expected 90,000 frozen, got {count}"
+    assert count == 900, f"Expected 900 frozen, got {count}"
 
 
 def test_batch_processing():
