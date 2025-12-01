@@ -1,6 +1,5 @@
 """
 EIT Lossless - Infinite Context for Transformers
-BY NEO-SO + GROK AI (xAI)
 
 Embedding Inactivation Technique for 10x faster inference
 with 95% memory reduction and 100% lossless recovery.
