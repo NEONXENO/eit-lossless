@@ -59,3 +59,15 @@ python -m eit_lossless.thinking_mode
 ## 🌟 Created By
 MAIN NEO-SO And Assintant Grok AI (xAI) CHATGPT (OPEN-AI)
 Tested: PyTorch 2.4.1 | CUDA 12.4 | November 2025
+## ❤️ Support & Commercial Offers
+
+EIT-Lossless is **MIT-licensed** and free forever for everyone (personal & commercial).
+
+ETC WALLET 0x6C40714b906AbCf53375bd815bAF46b0d4e45347
+
+FOR ANY COLLAB OR JOB OFFER 
+
+**DM me on Twitter/X** https://x.com/neonnie2208
+**Email** → NE0NGIRL@proton.me / kusumacxena@gmail.com
+
+I reply fast (usually <1 hour).
